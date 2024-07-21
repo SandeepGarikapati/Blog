@@ -28,11 +28,10 @@ pip3 install -r requirements.txt
 
 This will install the packages from the requirements.txt for this project.
 '''
-load_dotenv()
 EMAIL = "sandeepgarikapati17@gmail.com"
-PASS = os.environ["PASS"]  #PASSWORD FROM GOOGLE APP PASSWORDS
+PASS = os.environ.get('PASS')  #PASSWORD FROM GOOGLE APP PASSWORDS
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ["secret_key"]
+app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
 ckeditor = CKEditor(app)
 Bootstrap5(app)
 
