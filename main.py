@@ -303,5 +303,10 @@ def contact():
     return render_template("contact.html", current_user=current_user, form=form)
 
 
+@app.route("/forgot")
+def forgot_password():
+    return "<h1>Hello User! requested page coming soon</h1>"
+
+
 if __name__ == "__main__":
     app.run(debug=False)
