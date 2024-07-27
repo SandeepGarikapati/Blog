@@ -1,4 +1,7 @@
+import smtplib
 from datetime import date
+from mailbox import Message
+
 from flask import Flask, abort, render_template, redirect, url_for, flash
 from flask_bootstrap import Bootstrap5
 from flask_ckeditor import CKEditor
@@ -10,11 +13,14 @@ from sqlalchemy import Integer, String, Text
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import relationship
-from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm, ContactForm
+from forms import (CreatePostForm, RegisterForm, LoginForm, CommentForm, ContactForm, ForgotPasswordForm,
+                   ResetPasswordForm)
 from smtplib import SMTP
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
+from util import generate_token, confirm_token
+import random
 
 '''
 Make sure the required packages are installed: 
@@ -31,7 +37,7 @@ This will install the packages from the requirements.txt for this project.
 EMAIL = "sandeepgarikapati17@gmail.com"
 PASS = os.environ.get('PASS')  #PASSWORD FROM GOOGLE APP PASSWORDS
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
+app.config['SECRET_KEY'] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6b";
 ckeditor = CKEditor(app)
 Bootstrap5(app)
 
@@ -239,6 +245,7 @@ def add_new_post():
 
 
 # Use a decorator so only an admin user can edit a post
+@admin_only
 @app.route("/edit-post/<int:post_id>", methods=["GET", "POST"])
 def edit_post(post_id):
     post = db.get_or_404(BlogPost, post_id)
@@ -303,9 +310,36 @@ def contact():
     return render_template("contact.html", current_user=current_user, form=form)
 
 
-@app.route("/forgot")
+
+@app.route('/forgot_password', methods=["GET", "POST"])
 def forgot_password():
-    return "<h1>Hello User! requested page coming soon</h1>"
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        user = User.query.filter_by(email=email).first()
+        if user:
+            return redirect(url_for('reset_password', email=email))
+        else:
+            flash('Email address not found.', 'error')
+            return redirect(url_for('forgot_password'))
+    return render_template('forgot_password.html', form=form, current_user=current_user)
+
+
+@app.route('/reset_password/<email>', methods=["GET", "POST"])
+def reset_password(email):
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        flash('Invalid email address.', 'error')
+        return redirect(url_for('forgot_password'))
+
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.password = generate_password_hash(form.password.data)
+        db.session.commit()
+        flash('Your password has been updated!', 'success')
+        return redirect(url_for('login'))
+
+    return render_template('reset_password.html', form=form, current_user=current_user)
 
 
 if __name__ == "__main__":
