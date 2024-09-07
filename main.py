@@ -169,8 +169,6 @@ def register():
 @app.route('/login', methods=["GET", "POST"])
 def login():
     form = LoginForm()
-    form.email.data = "guestuser@gmail.com"
-    form.password.data = "Guest@123"
     
     if form.validate_on_submit():
         password = form.password.data
