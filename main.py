@@ -168,7 +168,10 @@ def register():
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
-    form = LoginForm(email="guestuser@gmail.com", password="Guest@123")
+    form = LoginForm()
+    form.email.data = "guestuser@gmail.com"
+    form.password.data = "Guest@123"
+    
     if form.validate_on_submit():
         password = form.password.data
         result = db.session.execute(db.select(User).where(User.email == form.email.data))
@@ -187,6 +190,7 @@ def login():
             return redirect(url_for('get_all_posts'))
 
     return render_template("login.html", form=form, current_user=current_user)
+
 
 
 @app.route('/logout')
