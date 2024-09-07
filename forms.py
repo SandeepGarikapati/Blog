@@ -26,11 +26,11 @@ class RegisterForm(FlaskForm):
 class LoginForm(FlaskForm):
     email = StringField("Email", 
                         validators=[DataRequired()], 
-                        render_kw={"placeholder": "Enter your email"})
+                        render_kw={"placeholder": "Guest login: guestuser@gmail.com"})
     
     password = PasswordField("Password", 
                              validators=[DataRequired()], 
-                             render_kw={"placeholder": "Enter your password"})
+                             render_kw={"placeholder": "Guest login:Guest@123"})
     
     submit = SubmitField("Let Me In!👍")
 
